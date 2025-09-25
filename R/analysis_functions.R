@@ -24,7 +24,14 @@ is.pgn <- function(x) {
 }
 
 moves_fun <- function(x) {
-  return(suppressWarnings(gsub("\\{.*?\\}", "", x, perl=TRUE) %>% strsplit(., "\\s+") %>% unlist() %>%  as.numeric() %>% max(na.rm = T)))
+  x |>
+    str_replace_all("\\{.*?\\}", "") |>
+    str_split("\\s+") |>
+    unlist() |>
+    as.numeric() |>
+    suppressWarnings() |>
+    max(na.rm = TRUE) |>
+    return()
 }
 
 return_num_moves <- function(moves_string) {
