@@ -104,7 +104,7 @@ get_each_player <- function(username) {
 
     # function to extract the number of moves in each game
     get_num_moves <- function(moves_string) {
-      n_moves <- suppressWarnings(stringr::str_extract_all(moves_string, "[^... ]+")[[1]] %>% as.numeric() %>% max(na.rm = T))
+      n_moves <- stringr::str_extract_all(moves_string, "[^... ]+")[[1]] %>% as.numeric() %>% max(na.rm = T)
       return(n_moves)
     }
 

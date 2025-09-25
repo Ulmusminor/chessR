@@ -15,16 +15,29 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
+
+is.pgn <- function(x) {
+  has_numbers <- str_detect(x, "\\b\\d+\\.")
+  has_legal_moves <- str_detect(x, "\\b(?:[KQRNB])?(?:[a-h1-8])?(?:x)?[a-h][1-8](?:=[QRNB])?[+#]?\\b")
+
+  return(has_numbers & has_legal_moves)
+}
+
+moves_fun <- function(x) {
+  return(suppressWarnings(gsub("\\{.*?\\}", "", x, perl=TRUE) %>% strsplit(., "\\s+") %>% unlist() %>%  as.numeric() %>% max(na.rm = T)))
+}
+
 return_num_moves <- function(moves_string) {
-  moves_string <- moves_string
-  moves_fun <- function(x) {
-    if(is.na(x)) {
-      n_moves <- NA
-    } else {
-      n_moves <- suppressWarnings(gsub("\\{.*?\\}", "", x, perl=TRUE) %>% strsplit(., "\\s+") %>% unlist() %>%  as.numeric() %>% max(na.rm = T))
-    }
-  }
-  n_moves <- mapply(moves_fun, moves_string)
+
+  if (!is.character(moves_string)) stop("Input must be a character vector")
+  ## First of all, making sure the strings are character.
+
+  is_valid <- sapply(moves_string, is.pgn)
+  ## Making sure that all elements provided are pgn
+
+  if(any(!is_valid)) stop("text is not a PGN")
+
+  n_moves <- sapply(moves_string, moves_fun)
   return(n_moves)
 }
 

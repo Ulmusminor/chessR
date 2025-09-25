@@ -1,5 +1,4 @@
-context("Testing chessR functions")
-
+## Context is deprecated, the test will procceed with the file name.
 
 test_that("get_game_data() works", {
   testthat::skip_on_cran()
@@ -42,17 +41,25 @@ test_that("get_top50_leaderboard() works", {
 })
 
 
-# test_that("lichess_leaderboard() works", {
-#   testthat::skip_on_cran()
-#   lichess_leaders <- lichess_leaderboard(top_n_players = 10, speed_variant = "blitz")
-#   expect_type(chessdotcom_leaders, "list")
-#   expect_true(nrow(chessdotcom_leaders) != 0)
-# })
+test_that("lichess_leaderboard() works", {
+   testthat::skip_on_cran()
+   lichess_leaders <- lichess_leaderboard(top_n_players = 10, speed_variant = "blitz")
+   expect_type(chessdotcom_leaders, "list")
+   expect_true(nrow(chessdotcom_leaders) != 0)
+ })
 
 
-test_that("return_num_moves() works", {
+test_that("return_num_moves() error with non-pgn text", {
   testthat::skip_on_cran()
-  chessdotcom_hikaru_recent <- get_raw_chessdotcom(usernames = "Hikaru", year_month = c(202104:202105))
+  negative_string <- "abcdefg 12. 12"
+
+  expect_error(return_num_moves(negative_string))
+})
+
+test_that("return_num_moves() works with pgn", {
+  testthat::skip_on_cran()
+  chessdotcom_hikaru_recent <- get_raw_chessdotcom(usernames = "Hikaru", year_month = c(202104:202105)) |>
+    subset(!is.na(Moves))
   chessdotcom_hikaru_recent$nMoves <- return_num_moves(moves_string = chessdotcom_hikaru_recent$Moves)
 
   expect_type(chessdotcom_hikaru_recent$nMoves, "double")
