@@ -3,6 +3,7 @@
 export(chessdotcom_leaderboard)
 export(extract_moves)
 export(extract_moves_as_game)
+export(get_each_player)
 export(get_game_data)
 export(get_game_ending)
 export(get_raw_chessdotcom)

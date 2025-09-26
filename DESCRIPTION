@@ -32,7 +32,7 @@ Imports:
     rvest,
     curl,
     httr
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.2
 Suggests: 
     knitr,
     rmarkdown,

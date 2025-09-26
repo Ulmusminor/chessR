@@ -15,25 +15,6 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-
-is.pgn <- function(x) {
-  has_numbers <- str_detect(x, "\\b\\d+\\.")
-  has_legal_moves <- str_detect(x, "\\b(?:[KQRNB])?(?:[a-h1-8])?(?:x)?[a-h][1-8](?:=[QRNB])?[+#]?\\b")
-
-  return(has_numbers & has_legal_moves)
-}
-
-moves_fun <- function(x) {
-  x |>
-    str_replace_all("\\{.*?\\}", "") |>
-    str_split("\\s+") |>
-    unlist() |>
-    as.numeric() |>
-    suppressWarnings() |>
-    max(na.rm = TRUE) |>
-    return()
-}
-
 return_num_moves <- function(moves_string) {
 
   if (!is.character(moves_string)) stop("Input must be a character vector")

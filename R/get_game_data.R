@@ -9,6 +9,8 @@
 #'
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
+#'
+#' @export
 get_each_player <- function(username) {
 
   # cat("Extracting ", username, " Data, please wait\n")
@@ -173,13 +175,14 @@ get_each_player <- function(username) {
 #'
 #' @return a dataframe of chess.com data plus additional analysis columns
 #'
-#' @export
 #'
 #' @examples
 #' \dontrun{
 #' chess_analysis_single <- get_game_data(usernames = "JaseZiv")
 #' chess_analysis_multiple <- get_game_data(usernames = c("JaseZiv", "Smudgy1"))
 #' }
+#'
+#' @export
 get_game_data <- function(usernames) {
   df <- purrr::map_df(usernames, get_each_player)
 
