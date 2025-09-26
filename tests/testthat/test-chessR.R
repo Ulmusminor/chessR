@@ -49,6 +49,13 @@ test_that("lichess_leaderboard() works", {
  })
 
 
+test_that("return_num_moves() error with non-character objects", {
+  testthat::skip_on_cran()
+  negative_string <- 24
+
+  expect_error(return_num_moves(negative_string))
+})
+
 test_that("return_num_moves() error with non-pgn text", {
   testthat::skip_on_cran()
   negative_string <- "abcdefg 12. 12"
@@ -60,9 +67,8 @@ test_that("return_num_moves() works with pgn", {
   testthat::skip_on_cran()
   chessdotcom_hikaru_recent <- get_raw_chessdotcom(usernames = "Hikaru", year_month = c(202104:202105)) |>
     subset(!is.na(Moves))
-  chessdotcom_hikaru_recent$nMoves <- return_num_moves(moves_string = chessdotcom_hikaru_recent$Moves)
 
-  expect_type(chessdotcom_hikaru_recent$nMoves, "double")
+  expect_equal(return_num_moves(moves_string = chessdotcom_hikaru_recent$Moves)[[1]], 19)
 })
 
 
