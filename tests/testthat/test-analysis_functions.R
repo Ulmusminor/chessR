@@ -1,13 +1,13 @@
 ## return_num_moves tests
 
-test_that("return_num_moves() error with non-character objects", {
+test_that("return_num_moves() fails with non-character objects", {
   testthat::skip_on_cran()
   negative_string <- 24
 
   expect_error(return_num_moves(negative_string))
 })
 
-test_that("return_num_moves() error with non-pgn text", {
+test_that("return_num_moves() fails with non-pgn text", {
   testthat::skip_on_cran()
   negative_string <- "abcdefg 12. 12"
 
@@ -22,9 +22,30 @@ test_that("return_num_moves() works with pgn", {
 })
 
 
-## get_game_ending/winner tests
+## get_game_ending tests
 
-test_that("get_game_ending() works", {
+test_that("get_game_ending() fails with non-char", {
+  testthat::skip_on_cran()
+  negative_string <- iris
+
+  expect_error(get_game_ending(negative_string, test_string$White, test_string$Black))
+})
+
+test_that("get_game_ending() fails with a non-termination string", {
+  testthat::skip_on_cran()
+  negative_string <- "Hikaru loses by determination"
+
+  expect_error(get_game_ending(negative_string, "Hikaru", "Falete"))
+})
+
+test_that("get_game_ending() doesn't crash with users resignation, checkmate, time...", {
+  testthat::skip_on_cran()
+  test_string <- get_raw_lichess(checkmate)
+
+  expect_error(get_game_ending(test_string, "", "time"))
+})
+
+test_that("get_game_ending() works only with termination char", {
   testthat::skip_on_cran()
   chessdotcom_hikaru_recent <- get_raw_chessdotcom(usernames = "Hikaru", year_month = c(202104:202105))
   chessdotcom_hikaru_recent$Ending <- mapply(get_game_ending,
@@ -34,6 +55,9 @@ test_that("get_game_ending() works", {
 
   expect_type(chessdotcom_hikaru_recent$Ending, "character")
 })
+
+
+## get_winner tests
 
 test_that("get_winner() works", {
   testthat::skip_on_cran()
