@@ -49,18 +49,36 @@ return_num_moves <- function(moves_string) {
 #' @importFrom magrittr %>%
 #'
 #' @export
-get_game_ending <- function(termination_string, white, black) {
-  string <- termination_string
-  usernames <- c(white, black)
-  usernames <- paste0("\\b(", paste(usernames, collapse="|"), ")\\b")
+get_game_ending <- function(raw_data = NULL) {
 
-  x <- gsub(usernames, "", string)
-  x <- gsub("won ", "", x)
-  x <- gsub(" \\- ", "", x)
-  x <- stringr::str_squish(x)
+  termination_string <- raw_data$Termination
+  white <- raw_data$White
+  black <- raw_data$Black
 
-  return(x)
-}
+  if (!(is.character(termination_string) &&
+        is.character(white) &&
+        is.character(black))) stop("All attributes must be a character vector")
+  ## First of all, making sure all the arguments are character.
+
+    escape_regex <- function(x) {
+      str_replace_all(x, "([.\\|()\\[\\]{}\\^\\$\\*\\+\\?\\\\])", "\\\\\\1")
+    }
+  ## We prepare this function to avoid escape characters in usernames
+
+  if (!any(str_detect(termination_string, "Normal|Time forfeit|resignation|checkmate|time|agreement"))) stop("termination string does not have any official game endings")
+  ## Give error if there are no terminations
+
+    mapply(function(string, w, b) {
+      usernames <- c(w, b)
+      escaped <- escape_regex(usernames)
+      pattern <- paste0("\\b(", paste(escaped, collapse = "|"), ")\\b")
+
+      x <- gsub(pattern, "", string)
+      x <- gsub("won ", "", x)
+      x <- gsub(" \\- ", "", x)
+      stringr::str_squish(x)
+    }, termination_string, white, black, USE.NAMES = FALSE)
+  }
 
 
 

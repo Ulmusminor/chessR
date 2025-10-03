@@ -4,7 +4,7 @@ test_that("return_num_moves() fails with non-character objects", {
   testthat::skip_on_cran()
   negative_string <- 24
 
-  expect_error(return_num_moves(negative_string))
+  expect_error(return_num_moves(negative_string), "Input must be a character vector")
 })
 
 test_that("return_num_moves() fails with non-pgn text", {
@@ -28,30 +28,27 @@ test_that("get_game_ending() fails with non-char", {
   testthat::skip_on_cran()
   negative_string <- iris
 
-  expect_error(get_game_ending(negative_string, test_string$White, test_string$Black))
+  expect_error(get_game_ending(negative_string), "All attributes must be a character vector")
 })
 
 test_that("get_game_ending() fails with a non-termination string", {
   testthat::skip_on_cran()
-  negative_string <- "Hikaru loses by determination"
+  negative_string <- list(Termination = "Hikaru loses by determination",
+                          White = "Hikaru",
+                          Black = "Falete")
 
-  expect_error(get_game_ending(negative_string, "Hikaru", "Falete"))
+  expect_error(get_game_ending(negative_string), "termination string does not have any official game endings")
 })
 
-test_that("get_game_ending() doesn't crash with users resignation, checkmate, time...", {
+test_that("get_game_ending() doesn't crash with user called checkmate", {
   testthat::skip_on_cran()
-  test_string <- get_raw_lichess(checkmate)
 
-  expect_error(get_game_ending(test_string, "", "time"))
+  expect_equal(get_game_ending(checkmate_test)[1], "Normal")
 })
 
 test_that("get_game_ending() works only with termination char", {
   testthat::skip_on_cran()
   chessdotcom_hikaru_recent <- get_raw_chessdotcom(usernames = "Hikaru", year_month = c(202104:202105))
-  chessdotcom_hikaru_recent$Ending <- mapply(get_game_ending,
-                                             termination_string = chessdotcom_hikaru_recent$Termination,
-                                             white = chessdotcom_hikaru_recent$White,
-                                             black = chessdotcom_hikaru_recent$Black)
 
   expect_type(chessdotcom_hikaru_recent$Ending, "character")
 })

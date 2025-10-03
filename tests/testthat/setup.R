@@ -6,3 +6,5 @@ chessdotcom_hikaru_recent <- get_raw_chessdotcom(
 )
 
 lichess_game_data <- get_raw_lichess("JaseZiv")
+
+checkmate_test <- get_raw_lichess("checkmate")
