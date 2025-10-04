@@ -36,8 +36,6 @@ return_num_moves <- function(moves_string) {
 #' This function returns a character vector of how the game ended from chess.dom.
 #'
 #' @param termination_string A character vector in the chess.com extracted data frame called 'Termination'
-#' @param white A character vector in the chess.com extracted data frame called 'White' for the player on white
-#' @param black A character vector in the chess.com extracted data frame called 'Black' for the player on black
 #'
 #' @examples
 #' \dontrun{
@@ -52,33 +50,17 @@ return_num_moves <- function(moves_string) {
 get_game_ending <- function(raw_data = NULL) {
 
   termination_string <- raw_data$Termination
-  white <- raw_data$White
-  black <- raw_data$Black
 
-  if (!(is.character(termination_string) &&
-        is.character(white) &&
-        is.character(black))) stop("All attributes must be a character vector")
+  if (!is.character(termination_string)) stop("The termination string must be a character vector")
   ## First of all, making sure all the arguments are character.
 
-    escape_regex <- function(x) {
-      str_replace_all(x, "([.\\|()\\[\\]{}\\^\\$\\*\\+\\?\\\\])", "\\\\\\1")
-    }
-  ## We prepare this function to avoid escape characters in usernames
-
-  if (!any(str_detect(termination_string, "Normal|Time forfeit|resignation|checkmate|time|agreement"))) stop("termination string does not have any official game endings")
+  if (!any(str_detect(termination_string, "Normal|Time forfeit|resignation|checkmate|time|agreement"))) stop("Termination string does not have any official game endings")
   ## Give error if there are no terminations
 
-    mapply(function(string, w, b) {
-      usernames <- c(w, b)
-      escaped <- escape_regex(usernames)
-      pattern <- paste0("\\b(", paste(escaped, collapse = "|"), ")\\b")
+  y <- str_extract_all(termination_string, "Normal|Time forfeit|resignation|checkmate|time|agreement") |> unlist()
 
-      x <- gsub(pattern, "", string)
-      x <- gsub("won ", "", x)
-      x <- gsub(" \\- ", "", x)
-      stringr::str_squish(x)
-    }, termination_string, white, black, USE.NAMES = FALSE)
-  }
+  return(y)
+}
 
 
 

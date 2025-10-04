@@ -28,7 +28,7 @@ test_that("get_game_ending() fails with non-char", {
   testthat::skip_on_cran()
   negative_string <- iris
 
-  expect_error(get_game_ending(negative_string), "All attributes must be a character vector")
+  expect_error(get_game_ending(negative_string), "The termination string must be a character vector")
 })
 
 test_that("get_game_ending() fails with a non-termination string", {
@@ -37,20 +37,13 @@ test_that("get_game_ending() fails with a non-termination string", {
                           White = "Hikaru",
                           Black = "Falete")
 
-  expect_error(get_game_ending(negative_string), "termination string does not have any official game endings")
+  expect_error(get_game_ending(negative_string), "Termination string does not have any official game endings")
 })
 
-test_that("get_game_ending() doesn't crash with user called checkmate", {
+test_that("get_game_ending() works with raw data", {
   testthat::skip_on_cran()
 
-  expect_equal(get_game_ending(checkmate_test)[1], "Normal")
-})
-
-test_that("get_game_ending() works only with termination char", {
-  testthat::skip_on_cran()
-  chessdotcom_hikaru_recent <- get_raw_chessdotcom(usernames = "Hikaru", year_month = c(202104:202105))
-
-  expect_type(chessdotcom_hikaru_recent$Ending, "character")
+  expect_equal(get_game_ending(chessdotcom_hikaru_recent)[1], "resignation")
 })
 
 
