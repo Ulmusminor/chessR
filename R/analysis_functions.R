@@ -58,6 +58,9 @@ get_game_ending <- function(raw_data = NULL) {
   ## Give error if there are no terminations
 
   y <- str_extract_all(termination_string, "Normal|Time forfeit|resignation|checkmate|time|agreement") |> unlist()
+  ## I'm not entirely sure I want to unlist, on one hand I would like every
+  ## termination to be univocal, but on the other hand I risk lengthening the
+  ## vector in strings like "x and y draw by insufficient material vs time".
 
   return(y)
 }
