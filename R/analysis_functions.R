@@ -85,6 +85,15 @@ get_game_ending <- function(raw_data = NULL) {
 #'
 #' @export
 get_winner <- function(result_column, white, black){
-  a <- ifelse(result_column == "0-1", black, ifelse(result_column == "1-0", white, "Draw"))
-  return(a)
+
+  if (!is.character(result_column)) stop("The result column must be a character vector")
+  ## It's fine if White and Black attributes are whatever
+
+  if (!all(result_column %in% c("0-1", "1-0", "1/2-1/2"))) warning("Some results are invalid. NAs added by coercion")
+
+  return(case_when(
+    result_column == "0-1"     ~ black,
+    result_column == "1-0"     ~ white,
+    result_column == "1/2-1/2" ~ "Draw"
+  ))
 }

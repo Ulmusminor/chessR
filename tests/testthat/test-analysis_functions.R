@@ -49,13 +49,42 @@ test_that("get_game_ending() works with raw data", {
 
 ## get_winner tests
 
+test_that("get_winner() fails when a result_column is not character", {
+  testthat::skip_on_cran()
+  negative_string <- iris
+
+  negative_string$Result <- 1
+  negative_string$White <- 1
+  negative_string$Black <- 1
+
+  expect_error(get_winner(negative_string$Result,
+                          negative_string$White,
+                          negative_string$Black),
+               "The result column must be a character vector")
+})
+
+test_that("get_winner() warns about non-results in the result column", {
+  testthat::skip_on_cran()
+
+  chessdotcom_hikaru_recent$Result[222] <- "0-0"
+
+  expect_warning(get_winner(chessdotcom_hikaru_recent$Result,
+                            chessdotcom_hikaru_recent$White,
+                            chessdotcom_hikaru_recent$Black),
+               "Some results are invalid. NAs added by coercion")
+
+  expect_true(get_winner(chessdotcom_hikaru_recent$Result,
+                          chessdotcom_hikaru_recent$White,
+                          chessdotcom_hikaru_recent$Black)[222] |>
+                is.na() |>
+                suppressWarnings())
+})
+
 test_that("get_winner() works", {
   testthat::skip_on_cran()
-  chessdotcom_hikaru_recent <- get_raw_chessdotcom(usernames = "Hikaru", year_month = c(202104:202105))
-  chessdotcom_hikaru_recent$Winner <- mapply(get_winner,
-                                             result_column = chessdotcom_hikaru_recent$Result,
-                                             white = chessdotcom_hikaru_recent$White,
-                                             black = chessdotcom_hikaru_recent$Black)
 
-  expect_type(chessdotcom_hikaru_recent$Winner, "character")
+  expect_equal(get_winner(chessdotcom_hikaru_recent$Result,
+                          chessdotcom_hikaru_recent$White,
+                          chessdotcom_hikaru_recent$Black)[436],
+               "DanielNaroditsky")
 })
