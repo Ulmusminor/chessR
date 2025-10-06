@@ -1,5 +1,10 @@
 ## get_each_player tests (TO BE DESIGNED)
 
+test_that("get_each_player() works", {
+
+  expect_silent(get_each_player("hikaru"))
+})
+
 ## get_game_data tests
 
 test_that("get_game_data() works", {

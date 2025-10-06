@@ -104,12 +104,6 @@ get_each_player <- function(username) {
     # create a username variable for analysis purposes
     cleaned_df$Username <- username
 
-    # function to extract the number of moves in each game
-    get_num_moves <- function(moves_string) {
-      n_moves <- stringr::str_extract_all(moves_string, "[^... ]+")[[1]] %>% as.numeric() %>% max(na.rm = T)
-      return(n_moves)
-    }
-
     # function to extract the ending in the ending url
     ending <- function(user, string, opponent) {
       x <- if(grepl(user, string)) {
@@ -131,7 +125,7 @@ get_each_player <- function(username) {
       dplyr::mutate(Date = lubridate::ymd(Date),
                     EndDate = lubridate::ymd(EndDate)) %>%
       # feature engineering of some new features for analysis
-      dplyr::mutate(n_Moves = mapply(get_num_moves, Moves),
+      dplyr::mutate(n_Moves = return_num_moves(Moves),
                     UserOpponent = ifelse(White == Username, Black, White),
                     UserColour = ifelse(Username == White, "White", "Black"),
                     OpponentColour = ifelse(UserOpponent == White, "White", "Black"),
