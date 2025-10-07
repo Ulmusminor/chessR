@@ -1,4 +1,10 @@
-## get_each_player tests (TO BE DESIGNED)
+## get_each_player tests
+
+test_that("get_each_player() works", {
+
+  expect_silent(get_each_player("hikaru"))
+})
+
 
 test_that("get_each_player() works", {
 
@@ -13,4 +19,4 @@ test_that("get_game_data() works", {
 
   expect_type(game_data, "list")
   expect_true(nrow(game_data) != 0)
-}) # fails so far, gives 400 warnings in the function
+})

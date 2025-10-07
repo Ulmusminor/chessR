@@ -73,10 +73,10 @@ lichess_leaderboard <- function(top_n_players, speed_variant) {
 
   # function to extract the player's title from the Player name string
   extract_title <- function(x){
-    if(stringr::str_detect(x, "\\s+")){
+    if (is.na(x)) {
+      return(NA)
+    } else {
       x <- gsub( "\\s.*", "", x)
-    } else{
-      x <- NA
     }
   }
   # extract the title
