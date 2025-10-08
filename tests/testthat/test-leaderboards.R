@@ -16,3 +16,4 @@ test_that("lichess_leaderboard() works", {
   expect_type(lichess_leaders, "list")
   expect_true(nrow(lichess_leaders) != 0)
 })
+
