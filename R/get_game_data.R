@@ -7,7 +7,6 @@
 #'
 #' @param username A string value of a player's name
 #'
-#' @importFrom magrittr %>%
 #' @importFrom rlang .data
 #'
 #' @export
@@ -23,10 +22,10 @@ get_each_player <- function(username) {
   # }
 
 
-  get_game_urls <- function(){
+  get_game_urls <- function(username){
     resp <- httr::GET(url = paste0("https://api.chess.com/pub/player/", username, "/games/archives"))
     check_status(resp)
-    resp <- resp %>% httr::content()
+    resp <- resp |> httr::content()
     resp <- resp$archives
     return(resp)
   }
@@ -41,28 +40,28 @@ get_each_player <- function(username) {
 
     # function to extract the game and moves data required for analysis
     extract_pgn <- function(x){
-      tryCatch( {x <- x$games$pgn}, error = function(x) {x <- NA}) %>% as.character() %>% data.frame() %>% dplyr::mutate_if(is.factor, as.character)
+      tryCatch( {x <- x$games$pgn}, error = function(x) {x <- NA}) |> as.character() |> data.frame() |> dplyr::mutate_if(is.factor, as.character)
     }
-    pgn <- games_list %>%
+    pgn <- games_list |>
       purrr::map_df(extract_pgn)
 
     # function to extract the rules of each game
     extract_rules <- function(x){
-      tryCatch( {x <- x$games$rules}, error = function(x) {x <- NA}) %>% as.character() %>% data.frame() %>% dplyr::mutate_if(is.factor, as.character)
+      tryCatch( {x <- x$games$rules}, error = function(x) {x <- NA}) |> as.character() |> data.frame() |> dplyr::mutate_if(is.factor, as.character)
     }
 
     # function to extract the time class of each game (ie blitz, bullet, daily, etc)
     extract_time_class <- function(x){
-      tryCatch( {x <- x$games$time_class}, error = function(x) {x <- NA}) %>% as.character() %>% data.frame() %>% dplyr::mutate_if(is.factor, as.character)
+      tryCatch( {x <- x$games$time_class}, error = function(x) {x <- NA}) |> as.character() |> data.frame() |> dplyr::mutate_if(is.factor, as.character)
     }
 
-    rules <- games_list %>%
+    rules <- games_list |>
       purrr::map_df(extract_rules)
 
-    time_class <- games_list %>%
+    time_class <- games_list |>
       purrr::map_df(extract_time_class)
 
-    df <- cbind(rules, time_class, pgn) %>% data.frame()
+    df <- cbind(rules, time_class, pgn) |> data.frame()
     colnames(df) <- c("rules", "time_class", "pgn")
     return(df)
 
@@ -76,12 +75,12 @@ get_each_player <- function(username) {
 
     cleaned_df <- df[grep("\\{", df$pgn),]
 
-    cleaned_df <- cleaned_df %>% dplyr::filter(.data$rules == "chess")
-    cleaned_df <- cleaned_df %>% dplyr::filter(.data$time_class %in% c("blitz", "bullet",  "daily",  "rapid"))
-    cleaned_df <- cleaned_df %>% dplyr::filter(!stringr::str_detect(.data$pgn, "Tournament"))
-    cleaned_df <- cleaned_df %>% dplyr::filter(!stringr::str_detect(.data$pgn, "club/matches"))
+    cleaned_df <- cleaned_df |> dplyr::filter(.data$rules == "chess")
+    cleaned_df <- cleaned_df |> dplyr::filter(.data$time_class %in% c("blitz", "bullet",  "daily",  "rapid"))
+    cleaned_df <- cleaned_df |> dplyr::filter(!stringr::str_detect(.data$pgn, "Tournament"))
+    cleaned_df <- cleaned_df |> dplyr::filter(!stringr::str_detect(.data$pgn, "club/matches"))
 
-    cleaned_df <- cleaned_df %>%
+    cleaned_df <- cleaned_df |>
       tidyr::separate(.data$pgn, into = c("Event", "Site", "Date", "Round", "White", "Black", "Result", "CurrentPosition", "Timezone", "ECO", "ECOUrl",
                                     "UTCDate", "UTCTime", "WhiteElo", "BlackElo", "TimeControl", "Termination", "StartTime", "EndDate", "EndTime",
                                     "Link", "Moves"), sep = "]\n")
@@ -94,11 +93,11 @@ get_each_player <- function(username) {
     # function to extract the data contained within the double quotes
     extract_data <- function(x) {sub('[^\"]+\"([^\"]+).*', '\\1', x)}
     # extract the data
-    cleaned_df <- cleaned_df %>%
-      dplyr::mutate_at(vars_to_extract, extract_data) %>% dplyr::mutate_if(is.factor, as.character)
+    cleaned_df <- cleaned_df |>
+      dplyr::mutate_at(vars_to_extract, extract_data) |> dplyr::mutate_if(is.factor, as.character)
 
     # create a variable to indicate which colour won the game
-    cleaned_df <- cleaned_df %>%
+    cleaned_df <- cleaned_df |>
       dplyr::mutate(winner = ifelse(Result == "0-1", "Black", ifelse(Result == "1-0", "White", "Draw")))
 
     # create a username variable for analysis purposes
@@ -120,30 +119,30 @@ get_each_player <- function(username) {
 
 
     # data cleaning and preprocessing
-    cleaned_df <- cleaned_df %>%
+    cleaned_df <- cleaned_df |>
       # convert date variables to ymd using lubridate::ymd()
       dplyr::mutate(Date = lubridate::ymd(Date),
-                    EndDate = lubridate::ymd(EndDate)) %>%
+                    EndDate = lubridate::ymd(EndDate)) |>
       # feature engineering of some new features for analysis
       dplyr::mutate(n_Moves = return_num_moves(Moves),
                     UserOpponent = ifelse(White == Username, Black, White),
                     UserColour = ifelse(Username == White, "White", "Black"),
                     OpponentColour = ifelse(UserOpponent == White, "White", "Black"),
                     UserELO = as.numeric(ifelse(Username == White, WhiteElo, BlackElo)),
-                    OpponentELO = as.numeric(ifelse(Username != White, WhiteElo, BlackElo))) %>%
+                    OpponentELO = as.numeric(ifelse(Username != White, WhiteElo, BlackElo))) |>
       dplyr::mutate(UserResult = ifelse(Result == "0-1", "Black", ifelse(Result == "1-0", "White", "Draw")),
-                    UserResult = ifelse(UserColour == UserResult, "Win", ifelse(UserResult == "Draw", "Draw", "Loss"))) %>%
-      dplyr::mutate(DaysTaken = EndDate - Date) %>%
-      dplyr::mutate(GameEnding = mapply(ending, Username, Termination, UserOpponent)) %>%
+                    UserResult = ifelse(UserColour == UserResult, "Win", ifelse(UserResult == "Draw", "Draw", "Loss"))) |>
+      dplyr::mutate(DaysTaken = EndDate - Date) |>
+      dplyr::mutate(GameEnding = mapply(ending, Username, Termination, UserOpponent)) |>
       dplyr::mutate(Opening = gsub(".*?/", "", ECOUrl),
                     Opening = sub("^.*?-", "", Opening))
 
   }
 
-  output <- get_game_urls() %>%
-    purrr::map(get_games) %>%
-    convert_to_df() %>%
-    clean_pgn() %>% dplyr::distinct(.keep_all = TRUE)
+  output <- get_game_urls(username) |>
+    purrr::map(get_games) |>
+    convert_to_df() |>
+    clean_pgn() |> dplyr::distinct(.keep_all = TRUE)
 
   # cat("Data extracted\n")
 
