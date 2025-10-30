@@ -12,8 +12,6 @@
 #'
 #' @return a dataframe of lichess data
 #'
-#' @importFrom rlang .data
-#'
 #' @export
 #'
 #' @examples
@@ -107,7 +105,7 @@ get_raw_lichess <- function(player_names, since = NULL, until = NULL) {
     output$Username <- each_player
     if (nrow(output)) {
       # filter out games where the variant is 'From Position'
-      output <- output |> dplyr::filter(.data$Variant != "From Position")
+      output <- output |> dplyr::filter(Variant != "From Position")
       final_output <- dplyr::bind_rows(final_output, output)
     }
 

@@ -7,8 +7,6 @@
 #'
 #' @param username A string value of a player's name
 #'
-#' @importFrom rlang .data
-#'
 #' @export
 get_each_player <- function(username) {
 
@@ -75,13 +73,13 @@ get_each_player <- function(username) {
 
     cleaned_df <- df[grep("\\{", df$pgn),]
 
-    cleaned_df <- cleaned_df |> dplyr::filter(.data$rules == "chess")
-    cleaned_df <- cleaned_df |> dplyr::filter(.data$time_class %in% c("blitz", "bullet",  "daily",  "rapid"))
-    cleaned_df <- cleaned_df |> dplyr::filter(!stringr::str_detect(.data$pgn, "Tournament"))
-    cleaned_df <- cleaned_df |> dplyr::filter(!stringr::str_detect(.data$pgn, "club/matches"))
+    cleaned_df <- cleaned_df |> dplyr::filter(rules == "chess")
+    cleaned_df <- cleaned_df |> dplyr::filter(time_class %in% c("blitz", "bullet",  "daily",  "rapid"))
+    cleaned_df <- cleaned_df |> dplyr::filter(!stringr::str_detect(pgn, "Tournament"))
+    cleaned_df <- cleaned_df |> dplyr::filter(!stringr::str_detect(pgn, "club/matches"))
 
     cleaned_df <- cleaned_df |>
-      tidyr::separate(.data$pgn, into = c("Event", "Site", "Date", "Round", "White", "Black", "Result", "CurrentPosition", "Timezone", "ECO", "ECOUrl",
+      tidyr::separate(pgn, into = c("Event", "Site", "Date", "Round", "White", "Black", "Result", "CurrentPosition", "Timezone", "ECO", "ECOUrl",
                                     "UTCDate", "UTCTime", "WhiteElo", "BlackElo", "TimeControl", "Termination", "StartTime", "EndDate", "EndTime",
                                     "Link", "Moves"), sep = "]\n")
 

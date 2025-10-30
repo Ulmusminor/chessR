@@ -20,7 +20,7 @@ extract_moves <- function(moves_string) {
   # remove annotations
   noclock <- stringr::str_remove_all(clean, "\\{.*?\\}")
   remove_ending <- stringr::str_remove(noclock, "[0-9]-[0-9]")
-  parsed <- tidyr::separate_rows(data.frame(move = remove_ending), .data$move, sep = "[0-9]+\\.")
+  parsed <- tidyr::separate_rows(data.frame(move = remove_ending), move, sep = "[0-9]+\\.")
   parsed <- parsed[-1, ]
   if (nrow(parsed) %% 2 == 1) {
     # end game early or white wins

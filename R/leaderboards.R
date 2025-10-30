@@ -53,8 +53,6 @@ chessdotcom_leaderboard <- function(game_type = "daily") {
 #' leaderboards <- purrr::map2_df(top_n_players = 10, c("ultraBullet", "bullet"), lichess_leaderboard)
 #' }
 #'
-#' @importFrom rlang .data
-#'
 #' @export
 lichess_leaderboard <- function(speed_variant) {
   # extract and convert to DF
