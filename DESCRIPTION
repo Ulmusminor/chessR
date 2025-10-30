@@ -27,7 +27,7 @@ Imports:
     tidyr,
     stringr,
     lubridate,
-    magrittr,
+    tidyverse,
     xml2,
     rvest,
     curl,

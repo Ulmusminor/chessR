@@ -23,6 +23,16 @@ moves_fun <- function(x) {
   return(y)
 }
 
+#' Check if a string is non empty to reduce it.
+#'
+#' @keywords internal
+empty_str_remove <- function(string, pattern) {
+  if (length(pattern) == 0 || !nzchar(pattern)) {
+    return(string)
+  }
+  str_remove(string, pattern)
+}
+
 #' Check status function
 #'
 #' @param res Response from API

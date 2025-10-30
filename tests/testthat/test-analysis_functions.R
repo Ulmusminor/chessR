@@ -16,7 +16,7 @@ test_that("return_num_moves() fails with non-pgn text", {
 
 test_that("return_num_moves() works with pgn", {
   testthat::skip_on_cran()
-  test_string <- chessdotcom_hikaru_recent |> subset(!is.na(Moves))
+  test_string <- chessdotcom_raw_hikaru |> subset(!is.na(Moves))
 
   expect_equal(return_num_moves(moves_string = test_string$Moves)[[1]], 19)
 })
@@ -43,7 +43,7 @@ test_that("get_game_ending() fails with a non-termination string", {
 test_that("get_game_ending() works with raw data", {
   testthat::skip_on_cran()
 
-  expect_equal(get_game_ending(chessdotcom_hikaru_recent)[1], "resignation")
+  expect_equal(get_game_ending(chessdotcom_raw_hikaru)[1], "resignation")
 })
 
 
@@ -66,16 +66,16 @@ test_that("get_winner() fails when a result_column is not character", {
 test_that("get_winner() warns about non-results in the result column", {
   testthat::skip_on_cran()
 
-  chessdotcom_hikaru_recent$Result[222] <- "0-0"
+  chessdotcom_raw_hikaru$Result[222] <- "0-0"
 
-  expect_warning(get_winner(chessdotcom_hikaru_recent$Result,
-                            chessdotcom_hikaru_recent$White,
-                            chessdotcom_hikaru_recent$Black),
+  expect_warning(get_winner(chessdotcom_raw_hikaru$Result,
+                            chessdotcom_raw_hikaru$White,
+                            chessdotcom_raw_hikaru$Black),
                "Some results are invalid. NAs added by coercion")
 
-  expect_true(get_winner(chessdotcom_hikaru_recent$Result,
-                          chessdotcom_hikaru_recent$White,
-                          chessdotcom_hikaru_recent$Black)[222] |>
+  expect_true(get_winner(chessdotcom_raw_hikaru$Result,
+                          chessdotcom_raw_hikaru$White,
+                          chessdotcom_raw_hikaru$Black)[222] |>
                 is.na() |>
                 suppressWarnings())
 })
@@ -83,8 +83,8 @@ test_that("get_winner() warns about non-results in the result column", {
 test_that("get_winner() works", {
   testthat::skip_on_cran()
 
-  expect_equal(get_winner(chessdotcom_hikaru_recent$Result,
-                          chessdotcom_hikaru_recent$White,
-                          chessdotcom_hikaru_recent$Black)[436],
+  expect_equal(get_winner(chessdotcom_raw_hikaru$Result,
+                          chessdotcom_raw_hikaru$White,
+                          chessdotcom_raw_hikaru$Black)[436],
                "DanielNaroditsky")
 })

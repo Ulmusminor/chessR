@@ -8,8 +8,6 @@
 #'
 #' @return a dataframe of chess.com data
 #'
-#' @importFrom magrittr %>%
-#'
 get_each_player_chessdotcom <- function(username, year_month) {
 
   # if(is.na(year_month)) {
@@ -23,7 +21,7 @@ get_each_player_chessdotcom <- function(username, year_month) {
     # jsonlite::fromJSON(paste0("https://api.chess.com/pub/player/", username, "/games/archives"))$archives
     resp <- httr::GET(url = paste0("https://api.chess.com/pub/player/", username, "/games/archives"))
     check_status(resp)
-    resp <- resp %>% httr::content()
+    resp <- resp |> httr::content()
     resp <- resp$archives
     return(resp)
   }
@@ -31,10 +29,10 @@ get_each_player_chessdotcom <- function(username, year_month) {
   if(is.na(year_month)) {
     month_urls <- get_month_urls()
   } else {
-    month_urls <- get_month_urls() %>% unlist()
-    year_mon <- stringr::str_sub(month_urls, start=-7) %>% gsub("/", "", .) %>% as.numeric()
+    month_urls <- get_month_urls() |> unlist()
+    year_mon <- str_sub(month_urls, start=-7) |> str_remove("/") |> as.numeric()
     month_urls <- data.frame(year_mon, month_urls)
-    month_urls <- month_urls %>% dplyr::filter(year_mon %in% year_month) %>% dplyr::pull(month_urls)
+    month_urls <- month_urls |> dplyr::filter(year_mon %in% year_month) |> dplyr::pull(month_urls)
   }
 
   if(length(month_urls) >0) {
@@ -43,17 +41,17 @@ get_each_player_chessdotcom <- function(username, year_month) {
       y <- jsonlite::fromJSON(y)
     }
     # apply function to get a list of all the games and game data
-    games <- month_urls %>% purrr::map(get_games)
+    games <- month_urls |> purrr::map(get_games)
 
     # function to parse and extract game metadata
     extract_pgn <- function(x){
       tryCatch( {x <- x$games$pgn}, error = function(x) {x <- NA})
     }
     # apply to get a list of all games' metadata
-    extracted_pgns <- games %>% purrr::map(extract_pgn)
+    extracted_pgns <- games |> purrr::map(extract_pgn)
     # function to create a single list to prepare for converting to a data frame
     create_pgn_list <-function(x) {
-      x <- unlist(x) %>% as.list()
+      x <- unlist(x) |> as.list()
     }
     # apply the function to result in a list of each individual game
     pgn_list <- create_pgn_list(extracted_pgns)
@@ -61,16 +59,16 @@ get_each_player_chessdotcom <- function(username, year_month) {
     # Additional metadata:
     # function to extract the rules of each game
     extract_rules <- function(x){
-      tryCatch( {x <- x$games$rules}, error = function(x) {x <- NA}) %>% as.character() %>% data.frame() %>% dplyr::mutate_if(is.factor, as.character)
+      tryCatch( {x <- x$games$rules}, error = function(x) {x <- NA}) |> as.character() |> data.frame() |> dplyr::mutate_if(is.factor, as.character)
     }
-    GameRules <- games %>% purrr::map_df(extract_rules)
+    GameRules <- games |> purrr::map_df(extract_rules)
     # function to extract the time class of each game (ie blitz, bullet, daily, etc)
     extract_time_class <- function(x){
-      tryCatch( {x <- x$games$time_class}, error = function(x) {x <- NA}) %>% as.character() %>% data.frame() %>% dplyr::mutate_if(is.factor, as.character)
+      tryCatch( {x <- x$games$time_class}, error = function(x) {x <- NA}) |> as.character() |> data.frame() |> dplyr::mutate_if(is.factor, as.character)
     }
-    TimeClass <- games %>%  purrr::map_df(extract_time_class)
+    TimeClass <- games |> purrr::map_df(extract_time_class)
 
-    extra_df <- cbind(GameRules, TimeClass) %>% data.frame()
+    extra_df <- cbind(GameRules, TimeClass) |> data.frame()
     colnames(extra_df) <- c("GameRules", "TimeClass")
 
     # function to extract all elements as columns, and all games as row in a data frame
@@ -78,14 +76,15 @@ get_each_player_chessdotcom <- function(username, year_month) {
       if(is.na(exp_list)) {
         df <- data.frame(Event=NA_character_)
       } else {
-        pgn_list <- strsplit(exp_list, "\n") %>% unlist()
-        tab_names <- c(gsub( "\\s.*", "", pgn_list[grep("\\[", pgn_list)][-c(length(pgn_list), (length(pgn_list)-1))]) %>% gsub("\\[", "", .), "Moves")
+        pgn_list <- strsplit(exp_list, "\n") |> unlist()
+        tab_names <- c(str_remove(pgn_list[grep("\\[", pgn_list)][-c(length(pgn_list), (length(pgn_list)-1))], "\\s.*") |> str_remove("\\["),
+                       "Moves")
         tab_values <- gsub(".*[\"]([^\"]+)[\"].*", "\\1", pgn_list[grep("\\[", pgn_list)])
         if(length(tab_names) != length(tab_values)) {
           tab_values <- c(tab_values, NA)
         }
         #create the df of values
-        df <- rbind(tab_values) %>% data.frame(stringsAsFactors = F)
+        df <- rbind(tab_values) |> data.frame(stringsAsFactors = F)
         colnames(df) <- tab_names
         # remove the row names
         rownames(df) <- c()
@@ -97,7 +96,7 @@ get_each_player_chessdotcom <- function(username, year_month) {
       return(df)
     }
     # convert the lists to data frames
-    df <- pgn_list %>% purrr::map_df(convert_to_df)
+    df <- pgn_list |> purrr::map_df(convert_to_df)
     df <- cbind(extra_df, df)
     df$Username <- username
 
@@ -119,8 +118,6 @@ get_each_player_chessdotcom <- function(username, year_month) {
 #' @param year_month An integer of YYYYMM
 #'
 #' @return a dataframe of chessdotcom data
-#'
-#' @importFrom magrittr %>%
 #'
 #' @export
 #'

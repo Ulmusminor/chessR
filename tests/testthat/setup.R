@@ -1,10 +1,14 @@
 ## Environment for avoiding calling each variable 20+ times
 
-chessdotcom_hikaru_recent <- get_raw_chessdotcom(
+library(tidyverse)
+
+chessdotcom_raw_hikaru <- get_raw_chessdotcom(
   usernames = "Hikaru",
   year_month = c(202104:202105)
 )
 
-lichess_game_data <- get_raw_lichess("JaseZiv")
+lichess_raw_jaseziv <- get_raw_lichess("JaseZiv")
 
-checkmate_test <- get_raw_lichess("checkmate")
+lichess_raw_checkmate <- get_raw_lichess("checkmate")
+
+chessdotcom_gamedata_jaseziv <- get_game_data(usernames = "JaseZiv")

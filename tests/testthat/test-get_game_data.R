@@ -6,17 +6,11 @@ test_that("get_each_player() works", {
 })
 
 
-test_that("get_each_player() works", {
-
-  expect_silent(get_each_player("hikaru"))
-})
-
 ## get_game_data tests
 
 test_that("get_game_data() works", {
   testthat::skip_on_cran()
-  game_data <- get_game_data(usernames = "JaseZiv")
 
-  expect_type(game_data, "list")
-  expect_true(nrow(game_data) != 0)
+  expect_type(chessdotcom_gamedata_jaseziv, "list")
+  expect_true(nrow(chessdotcom_gamedata_jaseziv) != 0)
 })
