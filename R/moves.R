@@ -13,8 +13,6 @@ extract_moves <- function(moves_string) {
     moves_string <- extract_moves_from_pgn(moves_string)
   }
 
-  # remove newlines
-  clean <- stringr::str_remove_all(moves_string, "\\\n")
   # remove explored lines
   clean <- stringr::str_remove_all(moves_string, "\\(.*?\\)")
   # remove annotations

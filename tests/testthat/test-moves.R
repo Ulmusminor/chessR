@@ -1,8 +1,7 @@
 ## extract_moves tests
 
 test_that("extract_moves() produces a data.frame of moves", {
-  chessdotcom_hikaru_recent <- get_raw_chessdotcom(usernames = "Hikaru", year_month = c(202104))
-  moves <- chessdotcom_hikaru_recent[1, "Moves"]
+  moves <- chessdotcom_raw_hikaru[1, "Moves"]
   move_df <- extract_moves(moves)
   testthat::skip_on_cran()
   expect_s3_class(move_df, "data.frame")
