@@ -23,7 +23,7 @@ return_num_moves <- function(moves_string) {
 
   if(any(!is_valid)) stop("text is not a PGN")
 
-  n_moves <- sapply(moves_string, moves_fun)
+  n_moves <- sapply(moves_string, count_moves)
   return(n_moves)
 }
 

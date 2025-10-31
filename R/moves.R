@@ -6,7 +6,8 @@
 #' @return cleaned moves as a data.frame
 #' @export
 extract_moves <- function(moves_string) {
-  stopifnot("only a single moves_string can be provided" = length(moves_string) == 1L)
+  stopifnot("only a single moves string can be provided" = length(moves_string) == 1L,
+            "the provided string must be a pgn" = is.pgn(moves_string))
 
   # read PGN filefile
   if (file.exists(moves_string)) {
@@ -14,11 +15,11 @@ extract_moves <- function(moves_string) {
   }
 
   # remove explored lines
-  clean <- stringr::str_remove_all(moves_string, "\\(.*?\\)")
+  clean <- str_remove_all(moves_string, "\\(.*?\\)")
   # remove annotations
-  noclock <- stringr::str_remove_all(clean, "\\{.*?\\}")
-  remove_ending <- stringr::str_remove(noclock, "[0-9]-[0-9]")
-  parsed <- tidyr::separate_rows(data.frame(move = remove_ending), move, sep = "[0-9]+\\.")
+  noclock <- str_remove_all(clean, "\\{.*?\\}")
+  remove_ending <- str_remove(noclock, "[0-9]-[0-9]")
+  parsed <- separate_rows(data.frame(move = remove_ending), move, sep = "[0-9]+\\.")
   parsed <- parsed[-1, ]
   if (nrow(parsed) %% 2 == 1) {
     # end game early or white wins
@@ -28,7 +29,8 @@ extract_moves <- function(moves_string) {
                       black = parsed$move[c(FALSE, TRUE)])
   moves$white <- trimws(moves$white)
   moves$black <- trimws(stringr::str_remove(moves$black, stringr::fixed(".. ")))
-  moves
+
+  return(moves)
 }
 
 
