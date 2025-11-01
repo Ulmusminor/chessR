@@ -6,19 +6,26 @@
 #' @return cleaned moves as a data.frame
 #' @export
 extract_moves <- function(moves_string) {
-  stopifnot("only a single moves string can be provided" = length(moves_string) == 1L,
-            "the provided string must be a pgn" = is.pgn(moves_string))
+
+  # check length and type of the input
+  if(length(moves_string) != 1L | !is.character(moves_string)) stop("only a character string of length 1 can be provided")
 
   # read PGN filefile
   if (file.exists(moves_string)) {
     moves_string <- extract_moves_from_pgn(moves_string)
   }
 
-  # remove explored lines
+  # check validity of pgn
+  if(!is.pgn(moves_string)) stop("the provided string must be a pgn OR a pgn file name")
+
+  # remove alternative lines
   clean <- str_remove_all(moves_string, "\\(.*?\\)")
-  # remove annotations
+
+  # remove annotations and ending
   noclock <- str_remove_all(clean, "\\{.*?\\}")
   remove_ending <- str_remove(noclock, "[0-9]-[0-9]")
+
+  # construct the dataframe
   parsed <- separate_rows(data.frame(move = remove_ending), move, sep = "[0-9]+\\.")
   parsed <- parsed[-1, ]
   if (nrow(parsed) %% 2 == 1) {

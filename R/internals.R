@@ -8,10 +8,10 @@ is.pgn <- function(x) {
   return(has_numbers & has_legal_moves)
 }
 
-#' Extract the moves from a PGN
+#' Extract the number of moves from a PGN
 #'
 #' @keywords internal
-moves_fun <- function(x) {
+count_moves <- function(x) {
   y <- x |>
     str_replace_all("\\{.*?\\}", "") |>
     str_split("\\s+") |>
