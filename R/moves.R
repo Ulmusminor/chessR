@@ -5,7 +5,7 @@
 #'
 #' @return cleaned moves as a data.frame
 #' @export
-extract_moves <- function(moves_string) {
+pgn_to_dataframe <- function(moves_string) {
 
   # check length and type of the input
   if(length(moves_string) != 1L | !is.character(moves_string)) stop("only a character string of length 1 can be provided")
@@ -48,12 +48,12 @@ extract_moves <- function(moves_string) {
 #'
 #' @return a [chess::game()] game object
 #' @export
-extract_moves_as_game <- function(game) {
+pgn_to_game <- function(game) {
   if (!requireNamespace("chess", quietly = TRUE)) {
     stop("This function requires the {chess} package to be installed.")
   }
   moves <- if (length(game) == 1 && file.exists(game)) {
-    gamedata <- extract_moves_from_pgn(game)
+    gamedata <- read_pgn(game)
     extract_moves(gamedata)
   } else {
     stopifnot("only a single game can be converted" = nrow(game) == 1L)
@@ -72,14 +72,12 @@ extract_moves_as_game <- function(game) {
 #' @param sleep how long to wait between moves
 #'
 #' @return `NULL`, (invisibly) - called for the side-effect of plotting
-#' @export
 #'
 #' @examples
 #' \dontrun{
 #' hikaru <- get_each_player_chessdotcom("hikaru", "202112")
-#' m <- extract_moves_as_game(hikaru[11, ])
+#' m <- pgn_to_game(hikaru[11, ])
 #' plot_moves(m)
-#' }
 plot_moves <- function(game, interactive = TRUE, sleep = 1) {
   if (!requireNamespace("chess", quietly = TRUE)) {
     stop("This function requires the {chess} package to be installed.")
@@ -99,8 +97,8 @@ plot_moves <- function(game, interactive = TRUE, sleep = 1) {
   return(invisible(NULL))
 }
 
-extract_moves_from_pgn <- function(filename) {
-  stopifnot(length(filename) == 1 && is.character(filename))
-  d <- readLines(filename, encoding = "UTF-8")
-  d[grep("^1\\.", d)]
-}
+## I advise against running plot. I believe rsvg_format is broken for chess
+## package or fails nonetheless. The example isn't reproducible and there aren't
+## any tests to back it up either.
+
+

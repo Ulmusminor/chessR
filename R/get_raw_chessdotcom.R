@@ -8,6 +8,7 @@
 #'
 #' @return a dataframe of chess.com data
 #'
+#' @export
 get_each_player_chessdotcom <- function(username, year_month) {
 
   # if(is.na(year_month)) {

@@ -1,3 +1,12 @@
+#' Read a PGN file
+#'
+#' @keywords internal
+read_pgn <- function(filename) {
+  stopifnot(length(filename) == 1 && is.character(filename))
+  d <- readLines(filename, encoding = "UTF-8")
+  d[grep("^1\\.", d)]
+}
+
 #' Check if a string is valid PGN
 #'
 #' @keywords internal
