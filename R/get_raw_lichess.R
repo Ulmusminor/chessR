@@ -68,10 +68,9 @@ get_raw_lichess <- function(player_names, since = NULL, until = NULL) {
     first_test <- first_test[-which(first_test == "")]
     # create a vector with the column names. The moves column doesn't have a title in the code so create one called "Moves"
     # the moves are always the last element so need to pull that out manually
-    tab_names <- c(gsub( "\\s.*", "", first_test[grep("\\[", first_test)]) |> str_remove("\\["), "Moves")
+    tab_names <- c(str_remove_all(first_test[grep("\\[", first_test)], "\\s.*") |> str_remove("\\["), "Moves")
     # then extract the values for each key above. Manually grab the moves value also and append to vector
-    tab_values <- c(gsub(".*[\"]([^\"]+)[\"].*", "\\1", first_test[grep("\\[", first_test)]), first_test[length(first_test)])
-    #create the df of values
+    tab_values <- c(str_extract(first_test[grep("\\[", first_test)], '(?<=\\").*?(?=\\")'), first_test[length(first_test)])   #create the df of values
     df <- rbind(tab_values) |> data.frame(stringsAsFactors = F)
     # then the header for table
     colnames(df) <- tab_names
@@ -84,11 +83,11 @@ get_raw_lichess <- function(player_names, since = NULL, until = NULL) {
     # remove the "+" sign and convert RatingDiff columns to numeric
     column_names <- colnames(df) |> paste0(collapse = ",")
     if(grepl("WhiteRatingDiff", column_names)) {
-      df$WhiteRatingDiff <- gsub("\\+", "", df$WhiteRatingDiff)
+      df$WhiteRatingDiff <- df$WhiteRatingDiff |> str_remove("\\+")
     }
 
     if(grepl("WhiteRatingDiff", column_names)) {
-      df$BlackRatingDiff <- gsub("\\+", "", df$BlackRatingDiff)
+      df$BlackRatingDiff <- df$BlackRatingDiff |> str_remove("\\+")
     }
     return(df)
   }

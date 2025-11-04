@@ -68,7 +68,7 @@ get_each_player <- function(username) {
   # clean each game string, separate columns and convert to df
   clean_pgn <- function(df) {
     # notes:
-    # this function will excluded "abandoned" games that didn't have a move recorded.
+    # this function will exclude "abandoned" games that didn't have a move recorded.
     # if it was abandoned and an opening was created, then it will be included in the results
 
     cleaned_df <- df[grep("\\{", df$pgn),]
@@ -103,16 +103,10 @@ get_each_player <- function(username) {
 
     # function to extract the ending in the ending url
     ending <- function(user, string, opponent) {
-      x <- if(grepl(user, string)) {
-        gsub(user, "", string)
-      } else {
-        x <- gsub(opponent, "", string)
-      }
-      x <- gsub("won ", "", x)
-      x <- gsub(" \\- ", "", x)
-      x <- stringr::str_squish(x)
 
-      return(x)
+      return(string |>
+               str_remove_all(paste0(user, "|", opponent, "|won |\\-")) |>
+               str_squish())
     }
 
 
@@ -132,8 +126,8 @@ get_each_player <- function(username) {
                     UserResult = ifelse(UserColour == UserResult, "Win", ifelse(UserResult == "Draw", "Draw", "Loss"))) |>
       dplyr::mutate(DaysTaken = EndDate - Date) |>
       dplyr::mutate(GameEnding = mapply(ending, Username, Termination, UserOpponent)) |>
-      dplyr::mutate(Opening = gsub(".*?/", "", ECOUrl),
-                    Opening = sub("^.*?-", "", Opening))
+      dplyr::mutate(Opening = str_remove_all(ECOUrl, ".*?/"),
+                    Opening = str_remove(Opening, "^.*?-"))
 
   }
 

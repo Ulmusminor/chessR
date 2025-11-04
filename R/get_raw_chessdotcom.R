@@ -80,7 +80,7 @@ get_each_player_chessdotcom <- function(username, year_month) {
         pgn_list <- strsplit(exp_list, "\n") |> unlist()
         tab_names <- c(str_remove(pgn_list[grep("\\[", pgn_list)][-c(length(pgn_list), (length(pgn_list)-1))], "\\s.*") |> str_remove("\\["),
                        "Moves")
-        tab_values <- gsub(".*[\"]([^\"]+)[\"].*", "\\1", pgn_list[grep("\\[", pgn_list)])
+        tab_values <- str_extract(pgn_list[grep("\\[", pgn_list)], '(?<=\\").*?(?=\\")')
         if(length(tab_names) != length(tab_values)) {
           tab_values <- c(tab_values, NA)
         }
@@ -90,8 +90,8 @@ get_each_player_chessdotcom <- function(username, year_month) {
         # remove the row names
         rownames(df) <- c()
         # need to clean up date variables
-        df$Date <-  gsub("\\.", "-", df$Date)
-        df$EndDate <- gsub("\\.", "-", df$EndDate)
+        df$Date <- df$Date |> str_replace_all("\\.", "-")
+        df$EndDate <- df$EndDate |> str_replace_all("\\.", "-")
       }
 
       return(df)

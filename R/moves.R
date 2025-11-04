@@ -12,7 +12,7 @@ pgn_to_dataframe <- function(moves_string) {
 
   # read PGN filefile
   if (file.exists(moves_string)) {
-    moves_string <- extract_moves_from_pgn(moves_string)
+    moves_string <- read_pgn(moves_string)
   }
 
   # check validity of pgn
@@ -78,6 +78,7 @@ pgn_to_game <- function(game) {
 #' hikaru <- get_each_player_chessdotcom("hikaru", "202112")
 #' m <- pgn_to_game(hikaru[11, ])
 #' plot_moves(m)
+#' }
 plot_moves <- function(game, interactive = TRUE, sleep = 1) {
   if (!requireNamespace("chess", quietly = TRUE)) {
     stop("This function requires the {chess} package to be installed.")
@@ -97,7 +98,7 @@ plot_moves <- function(game, interactive = TRUE, sleep = 1) {
   return(invisible(NULL))
 }
 
-## I advise against running plot. I believe rsvg_format is broken for chess
+## I advise against running plot_moves. I believe rsvg_format is broken for chess
 ## package or fails nonetheless. The example isn't reproducible and there aren't
 ## any tests to back it up either.
 

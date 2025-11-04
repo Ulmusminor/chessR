@@ -52,7 +52,7 @@ test_that("pgn_to_dataframe() produces a data.frame from a pgn file", {
 })
 
 
-## pgn_to_dataframe tests (tbd)
+## pgn_to_game tests (tbd)
 
 
 ## plot_moves tests (tbd)

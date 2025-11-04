@@ -61,11 +61,13 @@ lichess_leaderboard <- function(speed_variant) {
     data.frame()
   # player names come with the players title at the beginning of the string, need to remove,
   # but to do that, need to know what the titles are
-  player_status_codes <- gsub( "\\s.*", "", top_leaders$X2[grep("\\s", top_leaders$X2)]) |>
+  player_status_codes <- top_leaders$X2[grep("\\s", top_leaders$X2)] |> str_remove_all( "\\s.*") |>
     unique()
+  # prepare pattern for the str_remove function
+  pattern <- paste(player_status_codes, collapse = "|")
   # create a new column for just the player's username
   top_leaders$Usernames <- top_leaders$X2 |>
-    empty_str_remove(paste(player_status_codes, collapse="|")) |>
+    str_remove(ifelse(length(pattern) == 0, "(?!)", pattern)) |>
     str_remove("\\s")
   colnames(top_leaders) <- c("Rank", "TitleAndName", "Rating", "Progress", "Username")
 
@@ -74,7 +76,7 @@ lichess_leaderboard <- function(speed_variant) {
     if (is.na(x)) {
       return(NA)
     } else {
-      x <- gsub( "\\s.*", "", x)
+      x <- x |> str_remove_all( "\\s.*")
     }
   }
   # extract the title

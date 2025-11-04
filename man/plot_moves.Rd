@@ -19,3 +19,10 @@ plot_moves(game, interactive = TRUE, sleep = 1)
 \description{
 Plot a game
 }
+\examples{
+\dontrun{
+hikaru <- get_each_player_chessdotcom("hikaru", "202112")
+m <- pgn_to_game(hikaru[11, ])
+plot_moves(m)
+}
+}
