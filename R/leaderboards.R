@@ -21,8 +21,16 @@
 #' chessdotcom_leaderboard(game_type = "daily")
 #' }
 chessdotcom_leaderboard <- function(game_type = "daily") {
-  df <- jsonlite::fromJSON("https://api.chess.com/pub/leaderboards")[game_type] |> unname() |> data.frame()
-  df$X.id <- NULL
+  valid_game_types <- c(
+    "daily", "daily960", "live_rapid", "live_blitz", "live_bullet",
+    "live_bughouse", "live_blitz960", "live_threecheck", "live_crazyhouse",
+    "live_kingofthehill", "lessons", "tactics"
+  )
+
+  if (!game_type %in% valid_game_types) stop("incorrect `game_type`")
+
+  df <- jsonlite::fromJSON("https://api.chess.com/pub/leaderboards")[game_type] |> unname() |> data.frame() |> as_tibble()
+
   return(df)
 }
 
@@ -57,34 +65,16 @@ chessdotcom_leaderboard <- function(game_type = "daily") {
 lichess_leaderboard <- function(speed_variant) {
   # extract and convert to DF
   top_leaders <- xml2::read_html(paste0("https://lichess.org/player/top/", speed_variant)) |>
-    rvest::html_table() |>
-    data.frame()
-  # player names come with the players title at the beginning of the string, need to remove,
-  # but to do that, need to know what the titles are
-  player_status_codes <- top_leaders$X2[grep("\\s", top_leaders$X2)] |> str_remove_all( "\\s.*") |>
-    unique()
-  # prepare pattern for the str_remove function
-  pattern <- paste(player_status_codes, collapse = "|")
-  # create a new column for just the player's username
-  top_leaders$Usernames <- top_leaders$X2 |>
-    str_remove(ifelse(length(pattern) == 0, "(?!)", pattern)) |>
-    str_remove("\\s")
-  colnames(top_leaders) <- c("Rank", "TitleAndName", "Rating", "Progress", "Username")
+    (\(x) rvest::html_table(x)[[1]])() |>
+    drop_na() |>
+    rename(Rank = X1,
+           Name = X2,
+           Rating = X3,
+           Delta = X4) |>
+    mutate(speed_variant = speed_variant)
+  # player names come with the players title at the beginning of the string.
+  # knowing that spaces aren't allowed in usernames, we can separate
+  tidy_tl <- top_leaders |> separate(Name, into = c("Title", "Name"), sep = "\u00A0", fill = "left", extra = "merge")
 
-  # function to extract the player's title from the Player name string
-  extract_title <- function(x){
-    if (is.na(x)) {
-      return(NA)
-    } else {
-      x <- x |> str_remove_all( "\\s.*")
-    }
-  }
-  # extract the title
-  top_leaders$Title <- mapply(extract_title, top_leaders$TitleAndName)
-  # reorder the columns in the df to flow
-  top_leaders <- top_leaders |> dplyr::select(Rank, Title, Username, Rating, Progress)
-  # add the speed variant as a column for when multiple variants looped through the function
-  top_leaders$SpeedVariant <- speed_variant
-
-  return(top_leaders)
+  return(tidy_tl)
 }
