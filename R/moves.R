@@ -54,10 +54,10 @@ pgn_to_game <- function(game) {
   }
   moves <- if (length(game) == 1 && file.exists(game)) {
     gamedata <- read_pgn(game)
-    extract_moves(gamedata)
+    pgn_to_dataframe(gamedata)
   } else {
     stopifnot("only a single game can be converted" = nrow(game) == 1L)
-    extract_moves(game$Moves)
+    pgn_to_dataframe(game$Moves)
   }
   c_moves <- c(as.matrix(t(moves)))
   c_moves <- c_moves[c_moves != ""]
